@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import Header from "../components/Header";
 import { auth } from "../services/firebase";
 import { db } from "../services/firebase";
+import { uploadFile } from "../helpers/storage";
+import $ from 'jquery';
+import { MentionsInput, Mention } from 'react-mentions';
 
 export default class Master extends Component {
   constructor(props) {
@@ -12,9 +15,15 @@ export default class Master extends Component {
       content: '',
       readError: null,
       writeError: null,
-      loadingLogs: false
+      loadingLogs: false,
+      users: [],
+      keys: [],
+      file: "",
+      fileDownloadLink: ""
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleUpload = this.handleUpload.bind(this);
     this.myRef = React.createRef();
   }
 
@@ -24,11 +33,28 @@ export default class Master extends Component {
     try {
       db.ref("logs").on("value", snapshot => {
         let logs = [];
+        let users = [];
+        let keys = [];
+
+        let index = 0;
         snapshot.forEach((snap) => {
           logs.push(snap.val());
+          logs[index] = {...logs[index], key: snap.key};
+
+          var found = users.findIndex(x => x.id == logs[index].uemail);
+
+          if(found === -1){
+            users[index] = {...users[index], id: logs[index].uemail, display: logs[index].uemail }
+          }
+
+          keys[index] = {...keys[index], id: snap.key, display: snap.key};
+
+          index++;
         });
         logs.sort(function (a, b) { return a.timestamp - b.timestamp })
         this.setState({ logs });
+        this.setState({ users });
+        this.setState({ keys });
         logArea.scrollBy(0, logArea.scrollHeight);
         this.setState({ loadingLogs: false });
       });
@@ -42,7 +68,38 @@ export default class Master extends Component {
       content: event.target.value
     });
   }
-  
+
+  async handleSubmit(event) {
+    event.preventDefault();
+    this.setState({ writeError: null });
+    const logArea = this.myRef.current;
+    try {
+      if(this.state.file == ''){
+        this.state.fileDownloadLink == '';
+      }
+      else{
+        this.state.fileDownloadLink  = await uploadFile(this.state.file);
+      }
+      await db.ref("logs").push({
+        content: this.state.content,
+        timestamp: Date.now(),
+        uid: this.state.user.uid,
+        uemail: this.state.user.email,
+        fileDownloadLink: this.state.fileDownloadLink
+      });
+      this.setState({ content: '' });
+      logArea.scrollBy(0, logArea.scrollHeight);
+    } catch (error) {
+      console.log(error)
+      this.setState({ writeError: error.message });
+    }
+  }
+
+  async handleUpload(event) {
+    $(".custom-file-label").addClass("selected").html(event.target.files[0].name);
+    this.state.file = event.target.files[0]
+  }
+
   formatTime(timestamp) {
     const d = new Date(timestamp);
     const time = `${d.getDate()}/${(d.getMonth()+1)}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
@@ -53,9 +110,14 @@ export default class Master extends Component {
     return (
       <div className="console">
         <Header />
-          
+        <div className="container-fluid">
+        <pre><output>
+             <h1>Master Log</h1>
+             Log #                | Timestamp        | User @               | Log <br/>
+             ___________________________________________________________________
+          </output></pre>
+        </div>
         <div className="container-fluid log-area" ref={this.myRef}>
-        <h1>Master Log</h1>
           {this.state.loadingLogs ? 
               <div className="d-flex justify-content-center">
                 <div className="spinner-border text-success" role="status">
@@ -64,16 +126,43 @@ export default class Master extends Component {
               </div> 
           : ""}
           <pre><output>
-          Timestamp       | User                | Log
           {this.state.logs.map(log => {
-            return  <p key={log.timestamp} className={(this.state.user.uid === log.uid ? "text-info" : "")}> 
-              {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
-              <br />
-              <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
-              </p>             
+            if (log.fileDownloadLink === ''){
+              return <p key={log.timestamp} className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                  {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                  <br />
+                </p>
+            }
+            else {
+              return <p key={log.timestamp} className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                  {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                  <br />
+                  <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
+                </p>
+            }            
           })}
           </output></pre>
         </div>
+        
+      <div className="container-fluid">
+        <form onSubmit={this.handleSubmit}>
+          <div className="row">
+            <div className="form-group col-6">
+              <MentionsInput value={this.state.content} onChange={this.handleChange} className="form-control" name="content">
+                <Mention trigger="@" data={this.state.users} markup="@__display__" />
+                <Mention trigger="#" data={this.state.keys} markup="#__display__" />
+              </MentionsInput>
+            </div>
+            <div className="form-group col-4">
+              <div className="custom-file">
+                <input type="file" className="custom-file-input" id="customFile" onChange={(e)=>{this.handleUpload(e)}} />
+              </div>
+            </div>
+          </div>
+          {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
+          <button type="submit" className="btn btn-primary px-5 mt-4">Log</button>
+        </form>
+      </div>
       </div>
     );
   }

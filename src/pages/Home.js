@@ -11,7 +11,7 @@ export default class Home extends Component {
             <div className="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
                 <div className="d-flex justify-content-center">
                     <div className="text-center">
-                        <h1 className="mx-auto mb-3">AlfaisalSpaceX</h1>
+                        <h1 className="mx-auto my-0">AlfaisalSpaceX</h1>
                         <Link className="btn btn-primary" to="/master">Master Log</Link>
                     </div>
                 </div>

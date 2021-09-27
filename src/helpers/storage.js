@@ -5,6 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export async function uploadFile(file) {
+    if (file === null || file === undefined || file === ''){
+      return;
+    }
     const fileRef = ref(storage, "files/" + uuidv4()  + "-" +  file.name);
     await uploadBytes(fileRef, file);
 

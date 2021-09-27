@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import { auth } from "../services/firebase";
 import { db } from "../services/firebase";
 import { uploadFile } from "../helpers/storage";
-import $ from 'jquery'
+import $ from 'jquery';
 
 export default class Log extends Component {
   constructor(props) {
