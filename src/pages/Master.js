@@ -108,7 +108,7 @@ export default class Master extends Component {
 
   render() {
     return (
-      <div id="page-top"> 
+      <div id="page-top">
         <Header></Header>
         <div className="console">
           <div className="container header">
@@ -134,23 +134,22 @@ export default class Master extends Component {
                 </div> 
             : ""}
             {this.state.logs.map(log => {
-              if (log.fileDownloadLink === ''){
-                return <div key={log.timestamp}><p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                    {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
-                  </p>
-                  <hr />
-
-                  </div>
-              }
-              else {
-                return <div key={log.timestamp}><p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                    {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
-                    <br />
-                    <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
-                    
-                  </p>
-                  <hr/>
-                  </div>
+              if (log.fileDownloadLink === '') {
+                return <div key={log.timestamp}>
+                          <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                            {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                          </p>
+                          <hr />
+                        </div>
+              } else {
+                return <div key={log.timestamp}>
+                          <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                            {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                            <br />
+                            <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
+                          </p>
+                          <hr/>
+                        </div>
               }            
             })}
           </div>

@@ -11588,6 +11588,7 @@ body {
     line-height: 4rem;
   }
 }
+
 @media (min-width: 992px) {
   .masthead {
     height: 100vh;
@@ -11599,13 +11600,15 @@ body {
     letter-spacing: 0.8rem;
   }
 }
+
 @media (max-width: 768px) {
   .masthead {
     height: 100vh;
     padding: 0;
   }
   .masthead h1, .masthead .h1 {
-    font-size: 1rem;
+    font-weight: bold;
+    font-size: 1.25rem;
     line-height: 6.5rem;
     letter-spacing: 0.8rem;
   }
@@ -11621,14 +11624,20 @@ body {
   text-shadow: 0 0 5px #C8C8C8;
 }
 
-.header .header-no-output {display: none;}
+.header .header-no-output {
+  display: none;
+}
 
 @media (max-width: 768px) {
   .console {
     padding: 5rem 0;
   }
-  .header .header-output {display: none;}
-  .header .header-no-output {display: block;}
+  .header .header-output {
+    display: none;
+  }
+  .header .header-no-output {
+    display: block;
+  }
 } 
 
 .log-area {
