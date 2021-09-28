@@ -108,61 +108,72 @@ export default class Master extends Component {
 
   render() {
     return (
-      <div className="console">
-        <Header />
-        <div className="container-fluid">
-        <pre><output>
-             <h1>Master Log</h1>
-             Log #                | Timestamp        | User @               | Log <br/>
-             ___________________________________________________________________
-          </output></pre>
-        </div>
-        <div className="container-fluid log-area" ref={this.myRef}>
-          {this.state.loadingLogs ? 
-              <div className="d-flex justify-content-center">
-                <div className="spinner-border text-success" role="status">
-                  <span className="sr-only">Loading...</span>
-                </div>
-              </div> 
-          : ""}
-          <pre><output>
-          {this.state.logs.map(log => {
-            if (log.fileDownloadLink === ''){
-              return <p key={log.timestamp} className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                  {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
-                  <br />
-                </p>
-            }
-            else {
-              return <p key={log.timestamp} className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                  {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
-                  <br />
-                  <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
-                </p>
-            }            
-          })}
-          </output></pre>
-        </div>
-        
-      <div className="container-fluid">
-        <form onSubmit={this.handleSubmit}>
-          <div className="row">
-            <div className="form-group col-6">
-              <MentionsInput value={this.state.content} onChange={this.handleChange} className="form-control" name="content">
-                <Mention trigger="@" data={this.state.users} markup="@__display__" />
-                <Mention trigger="#" data={this.state.keys} markup="#__display__" />
-              </MentionsInput>
+      <div id="page-top"> 
+        <Header></Header>
+        <div className="console">
+          <div className="container header">
+            <div className="header-output">
+              <pre><output>
+                <h1>Master Log</h1>
+                #Log                    | Timestamp        | @User                | Log
+                <hr />
+              </output></pre>
             </div>
-            <div className="form-group col-4">
-              <div className="custom-file">
-                <input type="file" className="custom-file-input" id="customFile" onChange={(e)=>{this.handleUpload(e)}} />
-              </div>
+            <div className="header-no-output">
+              <h1>Master Log</h1>
+              #Log                    | Timestamp        | @User                | Log
+              <hr />
             </div>
           </div>
-          {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
-          <button type="submit" className="btn btn-primary px-5 mt-4">Log</button>
-        </form>
-      </div>
+          <div className="container log-area" ref={this.myRef}>
+            {this.state.loadingLogs ? 
+                <div className="d-flex justify-content-center">
+                  <div className="spinner-border text-success" role="status">
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                </div> 
+            : ""}
+            {this.state.logs.map(log => {
+              if (log.fileDownloadLink === ''){
+                return <div key={log.timestamp}><p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                    {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                  </p>
+                  <hr />
+
+                  </div>
+              }
+              else {
+                return <div key={log.timestamp}><p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                    {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                    <br />
+                    <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
+                    
+                  </p>
+                  <hr/>
+                  </div>
+              }            
+            })}
+          </div>
+          <div className="container">
+            <form onSubmit={this.handleSubmit}>
+            <div className="row py-4">
+              <div className="form-group col-md-8">
+                <MentionsInput value={this.state.content} onChange={this.handleChange} className="form-control" name="content">
+                  <Mention trigger="@" data={this.state.users} markup="@__display__" />
+                  <Mention trigger="#" data={this.state.keys} markup="#__display__" />
+                </MentionsInput>
+              </div>
+              <div className="form-group col-md-4">
+                <div className="custom-file">
+                  <input type="file" className="custom-file-input" id="customFile" onChange={(e)=>{this.handleUpload(e)}} />
+                </div>
+              </div>
+            </div>
+            {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
+            <button type="submit" className="btn btn-primary px-5 mt-4">Log</button>
+          </form>
+          </div>
+        </div>
       </div>
     );
   }
