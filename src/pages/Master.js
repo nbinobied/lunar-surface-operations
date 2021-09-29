@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import { auth } from "../services/firebase";
 import { db } from "../services/firebase";
 import { uploadFile } from "../helpers/storage";
-import $ from 'jquery';
 import { MentionsInput, Mention } from 'react-mentions';
 
 export default class Master extends Component {
@@ -40,8 +39,8 @@ export default class Master extends Component {
         snapshot.forEach((snap) => {
           logs.push(snap.val());
           logs[index] = {...logs[index], key: snap.key};
-
-          var found = users.findIndex(x => x.id == logs[index].uemail);
+          console.log(users)
+          var found = users.findIndex(x => x.id === logs[index].uemail);
 
           if(found === -1){
             users[index] = {...users[index], id: logs[index].uemail, display: logs[index].uemail }
@@ -96,7 +95,6 @@ export default class Master extends Component {
   }
 
   async handleUpload(event) {
-    $(".custom-file-label").addClass("selected").html(event.target.files[0].name);
     this.state.file = event.target.files[0]
   }
 
@@ -157,20 +155,32 @@ export default class Master extends Component {
             <form onSubmit={this.handleSubmit}>
             <div className="row py-4">
               <div className="form-group col-md-8">
-                <MentionsInput value={this.state.content} onChange={this.handleChange} className="form-control" name="content">
+                <MentionsInput value={this.state.content} onChange={this.handleChange} className="form-control" name="content"
+                                placeholder={"Enter Log..."}>
                   <Mention trigger="@" data={this.state.users} markup="@__display__" />
                   <Mention trigger="#" data={this.state.keys} markup="#__display__" />
                 </MentionsInput>
               </div>
               <div className="form-group col-md-4">
-                <div className="custom-file">
-                  <input type="file" className="custom-file-input" id="customFile" onChange={(e)=>{this.handleUpload(e)}} />
+                <div className="input-group">
+                  <input type="file" className="form-control" id="attachment" onChange={(e)=>{this.handleUpload(e)}} />
                 </div>
               </div>
             </div>
             {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
-            <button type="submit" className="btn btn-primary px-5 mt-4">Log</button>
+            <button type="submit" className="btn btn-primary px-5 mb-4">Log</button>
           </form>
+          <div className="col-md-6">
+            <ul className="list-group">
+              <li className="list-group-item">This is the master log containing all users logs</li>
+              <li className="list-group-item"><span className="text-info">Log</span>: Identity for each log</li>
+              <li className="list-group-item"><span className="text-info">Timestamp</span>: Time of the log</li>
+              <li className="list-group-item"><span className="text-info">User</span>: Email of user</li>
+              <li className="list-group-item"><span className="text-info">Log</span>: The log details</li>
+              <li className="list-group-item">Mention people using <span className="text-info">@User</span></li>
+              <li className="list-group-item">Tag a log using <span className="text-info">#Log</span></li>
+            </ul>
+          </div>
           </div>
         </div>
       </div>

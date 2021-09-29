@@ -3,9 +3,9 @@ import Header from "../components/Header";
 import { auth } from "../services/firebase";
 import { db } from "../services/firebase";
 import { uploadFile } from "../helpers/storage";
-import $ from 'jquery';
+import { MentionsInput, Mention } from 'react-mentions';
 
-export default class Log extends Component {
+export default class Master extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -15,6 +15,8 @@ export default class Log extends Component {
       readError: null,
       writeError: null,
       loadingLogs: false,
+      users: [],
+      keys: [],
       file: "",
       fileDownloadLink: ""
     };
@@ -30,23 +32,31 @@ export default class Log extends Component {
     try {
       db.ref("logs").on("value", snapshot => {
         let logs = [];
+        let users = [];
+        let keys = [];
+
+        let index = 0;
         snapshot.forEach((snap) => {
           logs.push(snap.val());
+          logs[index] = {...logs[index], key: snap.key};
+          console.log(users)
+          var found = users.findIndex(x => x.id === logs[index].uemail);
+
+          if(found === -1){
+            users[index] = {...users[index], id: logs[index].uemail, display: logs[index].uemail }
+          }
+
+          keys[index] = {...keys[index], id: snap.key, display: snap.key};
+
+          index++;
         });
         logs.sort(function (a, b) { return a.timestamp - b.timestamp })
         this.setState({ logs });
+        this.setState({ users });
+        this.setState({ keys });
         logArea.scrollBy(0, logArea.scrollHeight);
         this.setState({ loadingLogs: false });
       });
-      if (this.state.user !== null) {
-        this.state.user.providerData.forEach((profile) => {
-          console.log("Sign-in provider: " + profile.providerId);
-          console.log("  Provider-specific UID: " + profile.uid);
-          console.log("  Name: " + profile.displayName);
-          console.log("  Email: " + profile.email);
-          console.log("  Photo URL: " + profile.photoURL);
-        });
-      }
     } catch (error) {
       this.setState({ readError: error.message, loadingLogs: false });
     }
@@ -63,7 +73,12 @@ export default class Log extends Component {
     this.setState({ writeError: null });
     const logArea = this.myRef.current;
     try {
-      this.state.fileDownloadLink  = await uploadFile(this.state.file);
+      if(this.state.file == ''){
+        this.state.fileDownloadLink == '';
+      }
+      else{
+        this.state.fileDownloadLink  = await uploadFile(this.state.file);
+      }
       await db.ref("logs").push({
         content: this.state.content,
         timestamp: Date.now(),
@@ -80,7 +95,6 @@ export default class Log extends Component {
   }
 
   async handleUpload(event) {
-    $(".custom-file-label").addClass("selected").html(event.target.files[0].name);
     this.state.file = event.target.files[0]
   }
 
@@ -92,49 +106,88 @@ export default class Log extends Component {
 
   render() {
     return (
-    <div className="console">
-      <Header />
-      <div className="container-fluid log-area" ref={this.myRef}>
-        <h1>Personal Log</h1>
-        {this.state.loadingLogs ?
-            <div className="d-flex justify-content-center">
-              <div className="spinner-border text-success" role="status">
-                <span className="sr-only">Loading...</span>
-              </div>
+      <div id="page-top">
+        <Header></Header>
+        <div className="console">
+          <div className="container header">
+            <div className="header-output">
+              <pre><output>
+                <h1>Perosnal Log</h1>
+                #Log                    | Timestamp        | @User                | Log
+                <hr />
+              </output></pre>
             </div>
-        : ""}
-        <pre><output>
-          Timestamp       | User                | Log
-          {this.state.logs.map(log => {
-            if (this.state.user.uid !== log.uid){return null}
-            else {
-              return <p key={log.timestamp} className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                  {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
-                  <br />
-                  <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
-                </p>
-            }
-          })}
-        </output></pre>
-      </div>
-      <div className="container-fluid">
-        <form onSubmit={this.handleSubmit}>
-          <div className="row">
-            <div className="form-group col-8">
-              <textarea className="form-control" name="content" onChange={this.handleChange} value={this.state.content}></textarea>
-            </div>
-            <div className="form-group col-4">
-              <div className="custom-file">
-                <input type="file" className="custom-file-input" id="customFile" onChange={(e)=>{this.handleUpload(e)}} />
-                <label className="custom-file-label" htmlFor="customFile">Choose file</label>
-              </div>
+            <div className="header-no-output">
+              <h1>Personal Log</h1>
+              #Log                    | Timestamp        | @User                | Log
+              <hr />
             </div>
           </div>
-          {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
-          <button type="submit" className="btn btn-primary px-5 mt-4">Log</button>
-        </form>
+          <div className="container log-area" ref={this.myRef}>
+            {this.state.loadingLogs ? 
+                <div className="d-flex justify-content-center">
+                  <div className="spinner-border text-success" role="status">
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                </div> 
+            : ""}
+            {this.state.logs.map(log => {
+              if (this.state.user.uid !== log.uid){return null}
+              else {
+                if (log.fileDownloadLink === '') {
+                  return <div key={log.timestamp}>
+                            <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                              {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                            </p>
+                            <hr />
+                          </div>
+                } else {
+                  return <div key={log.timestamp}>
+                            <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
+                              {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                              <br />
+                              <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
+                            </p>
+                            <hr/>
+                          </div>
+                }
+              }           
+            })}
+          </div>
+          <div className="container">
+            <form onSubmit={this.handleSubmit}>
+            <div className="row py-4">
+              <div className="form-group col-md-8">
+                <MentionsInput value={this.state.content} onChange={this.handleChange} className="form-control" name="content"
+                                placeholder={"Enter Log..."}>
+                  <Mention trigger="@" data={this.state.users} markup="@__display__" />
+                  <Mention trigger="#" data={this.state.keys} markup="#__display__" />
+                </MentionsInput>
+              </div>
+              <div className="form-group col-md-4">
+                <div className="input-group">
+                  <input type="file" className="form-control" id="attachment" onChange={(e)=>{this.handleUpload(e)}} />
+                </div>
+              </div>
+            </div>
+            {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
+            <button type="submit" className="btn btn-primary px-5 mb-4">Log</button>
+          </form>
+          <div className="col-md-6">
+            <ul className="list-group">
+              <li className="list-group-item">This is the personal log containing only your logs</li>
+              <li className="list-group-item"><span className="text-info">You can still @mention and #tag other people and logs</span></li>
+              <li className="list-group-item"><span className="text-info">Log</span>: Identity for each log</li>
+              <li className="list-group-item"><span className="text-info">Timestamp</span>: Time of the log</li>
+              <li className="list-group-item"><span className="text-info">User</span>: Email of user</li>
+              <li className="list-group-item"><span className="text-info">Log</span>: The log details</li>
+              <li className="list-group-item">Mention people using <span className="text-info">@User</span></li>
+              <li className="list-group-item">Tag a log using <span className="text-info">#Log</span></li>
+            </ul>
+          </div>
+          </div>
+        </div>
       </div>
-    </div>
     );
   }
 }

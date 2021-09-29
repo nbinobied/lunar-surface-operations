@@ -11619,7 +11619,7 @@ body {
   min-height: 35rem;
   padding: 10rem 0;
   background-color: black;
-  background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+  background-image: linear-gradient(rgba(85, 87, 83, 0.75), black 120%);
   color: white;
   text-shadow: 0 0 5px #C8C8C8;
 }
