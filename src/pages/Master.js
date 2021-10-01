@@ -18,11 +18,14 @@ export default class Master extends Component {
       users: [],
       keys: [],
       file: "",
-      fileDownloadLink: ""
+      fileDownloadLink: "",
+      search: [],
+      filter: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
     this.myRef = React.createRef();
   }
 
@@ -41,10 +44,12 @@ export default class Master extends Component {
           logs.push(snap.val());
           logs[index] = {...logs[index], key: snap.key};
           
-          var found = users.findIndex(x => x.id === logs[index].uemail);
+          if(users[index] !==  undefined){  
+            var found = users.findIndex(x => x.id === logs[index].uemail);
 
-          if(found === -1){
-            users[index] = {...users[index], id: logs[index].uemail, display: logs[index].username }
+            if(found === -1){
+              users[index] = {...users[index], id: logs[index].uemail, display: logs[index].username }
+            }
           }
 
           keys[index] = {...keys[index], id: snap.key, display: snap.key};
@@ -55,6 +60,7 @@ export default class Master extends Component {
         this.setState({ logs });
         this.setState({ users });
         this.setState({ keys });
+        this.setState({ search : logs })
         logArea.scrollBy(0, logArea.scrollHeight);
         this.setState({ loadingLogs: false });
       });
@@ -100,6 +106,21 @@ export default class Master extends Component {
     this.state.file = event.target.files[0]
   }
 
+  async handleSearch(event) {
+    this.setState({ filter : event.target.value.toLowerCase() });
+    const keyword = event.target.value.toLowerCase();
+    if (keyword !== '') {
+      const search = this.state.logs.filter(log => {
+        return Object.keys(log).some(key =>
+          log[key].toString().toLowerCase().includes(keyword)
+        );
+      });
+      this.setState({ search });
+    } else {
+      this.setState({ search : this.state.logs });
+    }
+  }
+
   formatTime(timestamp) {
     const d = new Date(timestamp);
     const time = `${d.getDate()}/${(d.getMonth()+1)}/${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
@@ -112,18 +133,26 @@ export default class Master extends Component {
         <Header></Header>
         <div className="console">
           <div className="container header">
-            <div className="header-output">
-              <pre><output>
-                <h1>Master Log</h1>
-                #Log                    | Timestamp        | @User                | Log
-                <hr />
-              </output></pre>
+            <div className="row align-items-center">
+              <div className="col-md-6 col-sm-12">
+                <div className="header-output">
+                  <pre><output>
+                    <h1>Master Log</h1>
+                    #Log                    | Timestamp        | @User                | Log
+                    <hr />
+                  </output></pre>
+                </div>
+                <div className="header-no-output">
+                  <h1>Master Log</h1>
+                  #Log                    | Timestamp        | @User                | Log
+                  <hr />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <input value={this.state.filter} onChange={this.handleSearch} placeholder="Search..." className="form-control"/>     
+              </div>
             </div>
-            <div className="header-no-output">
-              <h1>Master Log</h1>
-              #Log                    | Timestamp        | @User                | Log
-              <hr />
-            </div>
+            <hr />
           </div>
           <div className="container log-area" ref={this.myRef}>
             {this.state.loadingLogs ? 
@@ -133,7 +162,7 @@ export default class Master extends Component {
                   </div>
                 </div> 
             : ""}
-            {this.state.logs.map(log => {
+            {this.state.search.map(log => {
               if (log.fileDownloadLink === '') {
                 return <div key={log.timestamp}>
                           <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
@@ -181,6 +210,7 @@ export default class Master extends Component {
               <li className="list-group-item"><span className="text-info">Log</span>: The log details</li>
               <li className="list-group-item">Mention people using <span className="text-info">@User</span></li>
               <li className="list-group-item">Tag a log using <span className="text-info">#Log</span></li>
+              <li className="list-group-item">You can search for any log, user, or content of log</li>
             </ul>
           </div>
           </div>
