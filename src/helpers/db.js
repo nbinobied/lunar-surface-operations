@@ -16,6 +16,7 @@ export function writeLogs(message) {
     timestamp: message.timestamp,
     uid: message.uid,
     uemail: message.uemail,
+    username: message.username,
     fileDownloadLink: message.fileDownloadLink
   });
 }

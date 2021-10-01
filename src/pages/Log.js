@@ -84,6 +84,7 @@ export default class Master extends Component {
         timestamp: Date.now(),
         uid: this.state.user.uid,
         uemail: this.state.user.email,
+        username: this.state.user.email.split("@")[0],
         fileDownloadLink: this.state.fileDownloadLink
       });
       this.setState({ content: '' });
@@ -137,14 +138,14 @@ export default class Master extends Component {
                 if (log.fileDownloadLink === '') {
                   return <div key={log.timestamp}>
                             <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                              {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                              {log.key} | {this.formatTime(log.timestamp)} | {log.username} | {log.content}
                             </p>
                             <hr />
                           </div>
                 } else {
                   return <div key={log.timestamp}>
                             <p className={(this.state.user.uid === log.uid ? "text-info" : "")}>
-                              {log.key} | {this.formatTime(log.timestamp)} | {log.uemail} | {log.content}
+                              {log.key} | {this.formatTime(log.timestamp)} | {log.username} | {log.content}
                               <br />
                               <a href={log.fileDownloadLink} target="_blank" rel="noopener noreferrer">Download Attachment</a>
                             </p>
