@@ -11559,6 +11559,19 @@ body {
   border: 0;
 }
 
+.signup {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 35rem;
+  padding: 15rem 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 75%, #000 100%), url("../../assets/img/apollo.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-size: cover;
+}
+
 .masthead {
   position: relative;
   width: 100%;
@@ -11571,6 +11584,20 @@ body {
   background-attachment: scroll;
   background-size: cover;
 }
+
+.login {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 35rem;
+  padding: 15rem 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 75%, #000 100%), url("../../assets/img/module.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-size: cover;
+}
+
 
 .masthead h1, .masthead .h1 {
   font-size: 2.5rem;  

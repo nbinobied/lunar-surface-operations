@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Header from '../components/Header';
 import { Link } from 'react-router-dom';
 import { signup, signInWithGoogle, signInWithGitHub } from "../helpers/auth";
 
@@ -52,13 +53,15 @@ export default class SignUp extends Component {
 
   render() {
     return (
-      <div className="container">
+      <div>
+        <Header></Header>
+        <div className="signup">
+        <div className="container">
         <form className="mt-5 py-5 px-5" onSubmit={this.handleSubmit}>
-          <h1>
-            Sign Up to
-          <Link className="title ml-2" to="/">Lunar Surface Operations</Link>
+          <h1 className="text-center text-white">
+            Sign Up
           </h1>
-          <p className="lead">Fill in the form below to create an account.</p>
+          <p className="lead text-white">Fill in the form below to create an account.</p>
           <div className="form-group">
             <input className="form-control" placeholder="Email" name="email" type="email" onChange={this.handleChange} value={this.state.email}></input>
           </div>
@@ -69,16 +72,18 @@ export default class SignUp extends Component {
             {this.state.error ? <p className="text-danger">{this.state.error}</p> : null}
             <button className="btn btn-primary px-5" type="submit">Sign up</button>
           </div>
-          <p>You can also sign up with any of these services</p>
-          <button className="btn btn-danger mr-2" type="button" onClick={this.googleSignIn}>
+          <p className="text-white">You can also sign up with any of these services</p>
+          <button className="btn btn-danger" type="button" onClick={this.googleSignIn}>
             Sign up with Google
           </button>
           <button className="btn btn-secondary" type="button" onClick={this.githubSignIn}>
             Sign up with GitHub
           </button>
           <hr></hr>
-          <p>Already have an account? <Link to="/login">Login</Link></p>
+          <p className="text-white">Already have an account? <Link to="/login">Login</Link></p>
         </form>
+      </div>
+      </div>
       </div>
     )
   }
